@@ -48,17 +48,76 @@
   .small{font-size:11px;color:var(--muted)}
   .result{font-weight:700;color:#0f172a;margin-top:4px;font-size:14px;font-variant-numeric:tabular-nums}
   .plans-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
-  .plan-card{border:2px solid var(--border);border-radius:12px;padding:14px;background:#fff;cursor:pointer;transition:all 0.25s;position:relative}
-  .plan-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.05)}
-  .plan-card.active{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 2px var(--accent)}
+  
+  /* 方案卡片视觉对比：未选中以深灰色显示，选中突出显示 */
+  .plan-card{
+    border:2px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    background:#f8fafc;
+    cursor:pointer;
+    transition:all 0.25s;
+    position:relative;
+    color:#64748b; /* 未选中默认深灰文字 */
+  }
+  .plan-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.05);
+  }
+  .plan-card .plan-title{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:#64748b;
+  }
+  .plan-card .plan-spec-line{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    margin-bottom:5px;
+    border-bottom:1px dashed #e2e8f0;
+    padding-bottom:3px;
+  }
+  .plan-card .plan-spec-line span:first-child{
+    color:#94a3b8;
+  }
+  .plan-card .plan-spec-line span:last-child{
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    text-align:right;
+    color:#64748b;
+  }
+  .plan-card .total-cable-val{
+    color:#64748b;
+  }
+
+  /* 选中状态的强对比高亮样式 */
+  .plan-card.active{
+    border-color:var(--accent);
+    background:var(--accent-light);
+    box-shadow:0 0 0 2px var(--accent);
+    color:#0f172a;
+  }
+  .plan-card.active .plan-title{
+    color:#0f172a;
+  }
+  .plan-card.active .plan-spec-line span:first-child{
+    color:#475569;
+  }
+  .plan-card.active .plan-spec-line span:last-child{
+    color:#0f172a;
+  }
+  .plan-card.active .total-cable-val{
+    color:var(--accent) !important;
+  }
+
   .plan-tag{position:absolute;top:10px;right:10px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
   .tag-best{background:#dcfce7;color:#15803d}
   .tag-larger{background:#fef3c7;color:#b45309}
   .tag-smaller{background:#e0e7ff;color:#4338ca}
-  .plan-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-  .plan-spec-line{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;border-bottom:1px dashed #e2e8f0;padding-bottom:3px}
-  .plan-spec-line span:first-child{color:var(--muted)}
-  .plan-spec-line span:last-child{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
   
   .shipping-bar{margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px dashed #cbd5e1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   
@@ -66,14 +125,14 @@
   .summary-banner{color:white;border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between}
   .summary-banner.cny{background:linear-gradient(135deg,#1e1e24,#2b2d42);border-top:3px solid #f59e0b}
   .summary-banner.usd{background:linear-gradient(135deg,#0f172a,#1e293b);border-top:3px solid #38bdf8}
-  .summary-banner .banner-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .summary-banner .banner-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
   .summary-banner .badge-title{font-size:12px;font-weight:600;padding:2px 6px;border-radius:4px}
   .summary-banner.cny .badge-title{background:rgba(245,158,11,0.2);color:#fbbf24}
   .summary-banner.usd .badge-title{background:rgba(56,189,248,0.2);color:#38bdf8}
   .summary-banner .big-total{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
   .summary-banner.cny .big-total{color:#fbbf24}
   .summary-banner.usd .big-total{color:#38bdf8}
-  .summary-banner .breakdown-line{font-size:11px;color:#cbd5e1;margin-top:4px;line-height:1.5}
+  .summary-banner .breakdown-line{font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.6}
   
   .spare-table{width:100%;border-collapse:collapse;margin-top:8px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
   .spare-table th{background:#f1f5f9;color:#334155;font-size:12px;font-weight:600;padding:8px 6px;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
@@ -83,13 +142,38 @@
   .cell-input.text-left{text-align:left}
   .cell-input.qty{min-width:60px;text-align:center}
 
+  .spares-subtotal-box{
+    background:#f8fafc;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-top:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .spares-subtotal-box .sub-label{
+    font-size:13px;
+    font-weight:700;
+    color:#334155;
+  }
+  .spares-subtotal-box .sub-vals{
+    display:flex;
+    gap:16px;
+    font-size:15px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+
   .final-grand-banner{background:linear-gradient(135deg,#090d16,#111827);border:2px solid #3b82f6;color:white;border-radius:10px;padding:18px 20px;margin-top:16px;display:flex;justify-content:space-between;align-items:center}
   .final-grand-banner .total-display{text-align:right}
   .final-grand-banner .cny-num{font-size:22px;font-weight:700;color:#fbbf24;font-variant-numeric:tabular-nums}
   .final-grand-banner .usd-num{font-size:26px;font-weight:700;color:#38bdf8;font-variant-numeric:tabular-nums;margin-top:2px}
 
   .diagram-container{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:stretch;margin-top:10px}
-  .canvas-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;display:flex;justify-content:center;align-items:center;padding:12px;position:relative;overflow:hidden;min-height:360px}
+  .canvas-box{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;display:flex;justify-content:center;align-items:center;padding:12px;position:relative;overflow:hidden;min-height:360px}
   .spec-detail-box{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;justify-content:space-between}
   .spec-item{margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed #e2e8f0}
   .spec-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
@@ -291,7 +375,7 @@
         <div class="plan-spec-line"><span id="lbl_b_pwr">Power (Max / Avg)</span><span id="best_power_watts">—</span></div>
         <div class="plan-spec-line"><span id="lbl_b_pwrcab">Main Power Cables</span><span id="best_power_cables">—</span></div>
         <div class="plan-spec-line"><span id="lbl_b_sigcab">Main Signal Cables</span><span id="best_signal_cables">—</span></div>
-        <div class="plan-spec-line" style="border:none"><span id="lbl_b_totcab">Total Cables</span><span style="color:var(--accent)" id="best_cable_sum">—</span></div>
+        <div class="plan-spec-line" style="border:none"><span id="lbl_b_totcab">Total Cables</span><span class="total-cable-val" id="best_cable_sum">—</span></div>
       </div>
 
       <!-- Larger Option -->
@@ -306,7 +390,7 @@
         <div class="plan-spec-line"><span id="lbl_l_pwr">Power (Max / Avg)</span><span id="larger_power_watts">—</span></div>
         <div class="plan-spec-line"><span id="lbl_l_pwrcab">Main Power Cables</span><span id="larger_power_cables">—</span></div>
         <div class="plan-spec-line"><span id="lbl_l_sigcab">Main Signal Cables</span><span id="larger_signal_cables">—</span></div>
-        <div class="plan-spec-line" style="border:none"><span id="lbl_l_totcab">Total Cables</span><span style="color:var(--warning)" id="larger_cable_sum">—</span></div>
+        <div class="plan-spec-line" style="border:none"><span id="lbl_l_totcab">Total Cables</span><span class="total-cable-val" id="larger_cable_sum">—</span></div>
       </div>
 
       <!-- Smaller Option -->
@@ -321,7 +405,7 @@
         <div class="plan-spec-line"><span id="lbl_s_pwr">Power (Max / Avg)</span><span id="smaller_power_watts">—</span></div>
         <div class="plan-spec-line"><span id="lbl_s_pwrcab">Main Power Cables</span><span id="smaller_power_cables">—</span></div>
         <div class="plan-spec-line"><span id="lbl_s_sigcab">Main Signal Cables</span><span id="smaller_signal_cables">—</span></div>
-        <div class="plan-spec-line" style="border:none"><span id="lbl_s_totcab">Total Cables</span><span style="color:#4338ca" id="smaller_cable_sum">—</span></div>
+        <div class="plan-spec-line" style="border:none"><span id="lbl_s_totcab">Total Cables</span><span class="total-cable-val" id="smaller_cable_sum">—</span></div>
       </div>
     </div>
   </section>
@@ -442,11 +526,11 @@
         <div>
           <div class="banner-top">
             <span class="badge-title" id="badge_cny_title">人民币核算汇总 (CNY)</span>
-            <span style="font-size:12px;color:#cbd5e1" id="summary_plan_badge_cny">选定方案: [Best Fit]</span>
+            <span style="font-size:12px;color:#cbd5e1;font-weight:600" id="summary_plan_badge_cny">选定方案: [Best Fit]</span>
           </div>
           <div class="big-total" id="grand_total_cny">¥ 0.00</div>
           <div class="breakdown-line" id="summary_breakdown_cny">
-            屏幕: ¥0.00 ｜ 线材: ¥0.00 ｜ 处理器: ¥0.00 ｜ 运费: ¥0.00
+            屏幕: ¥0.00 (单价: ¥0.00/㎡) ｜ 线材: ¥0.00 (单价: ¥0.00/根) ｜ 处理器: ¥0.00 ｜ 运费: ¥0.00
           </div>
         </div>
       </div>
@@ -455,11 +539,11 @@
         <div>
           <div class="banner-top">
             <span class="badge-title" id="badge_usd_title">美元核算汇总 (USD)</span>
-            <span style="font-size:12px;color:#cbd5e1" id="summary_plan_badge_usd">Selected: [Best Fit]</span>
+            <span style="font-size:12px;color:#cbd5e1;font-weight:600" id="summary_plan_badge_usd">Selected: [Best Fit]</span>
           </div>
           <div class="big-total" id="grand_total_usd">$ 0.00</div>
           <div class="breakdown-line" id="summary_breakdown_usd">
-            Screen: $0.00 ｜ Cables: $0.00 ｜ Processor: $0.00 ｜ Shipping: $0.00
+            Screen: $0.00 ($0.00/sqm) ｜ Cables: $0.00 ($0.00/pc) ｜ Processor: $0.00 ｜ Shipping: $0.00
           </div>
         </div>
       </div>
@@ -493,26 +577,33 @@
       </table>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:12px">
+    <div style="margin-top:12px">
       <button id="addSpareRowBtn" class="btn">+ Add Spare / Accessory Item</button>
-      <div style="font-size:14px;font-weight:700;color:#1e293b" id="spares_total_bar">
-        Total Spares Cost: <span style="color:#f59e0b" id="spares_total_cny_text">¥ 0.00</span> ｜ <span style="color:#2563eb" id="spares_total_usd_text">$ 0.00</span>
+    </div>
+
+    <!-- Spares & Accessories 专属价格小计栏 -->
+    <div class="spares-subtotal-box" id="spares_total_bar">
+      <div class="sub-label" id="spares_sub_title">Spares & Accessories Subtotal:</div>
+      <div class="sub-vals">
+        <span style="color:#d97706" id="spares_total_cny_text">CNY: ¥ 0.00</span>
+        <span style="color:#cbd5e1">|</span>
+        <span style="color:#2563eb" id="spares_total_usd_text">USD: $ 0.00</span>
       </div>
     </div>
 
-    <!-- 最终大总价看板 (含屏幕、线材、处理器、运费以及全部备品配件) -->
+    <!-- 最终大总价看板 -->
     <div class="final-grand-banner">
       <div>
         <div style="font-size:13px;font-weight:600;color:#93c5fd;text-transform:uppercase;letter-spacing:0.5px" id="final_banner_label">
-          ★ FINAL GRAND TOTAL (SCREEN + CABLES + PROCESSOR + FREIGHT + SPARES)
+          FINAL GRAND TOTAL (SCREEN + CABLES + PROCESSOR + FREIGHT + SPARES)
         </div>
         <div style="font-size:11px;color:#94a3b8;margin-top:4px" id="final_banner_sub">
           Grand Total including Screen, Cables, Video Processor, Freight, and all Spares & Free Accessories.
         </div>
       </div>
       <div class="total-display">
-        <div class="cny-num" id="final_grand_cny">¥ 0.00</div>
-        <div class="usd-num" id="final_grand_usd">$ 0.00</div>
+        <div class="cny-num" id="final_grand_cny">Total CNY: ¥ 0.00</div>
+        <div class="usd-num" id="final_grand_usd">Total USD: $ 0.00</div>
       </div>
     </div>
   </section>
@@ -534,7 +625,7 @@
 
       <div class="spec-detail-box">
         <div class="spec-item">
-          <div class="spec-label" id="diag_lbl_dim">1. Screen Dimensions (W × H)</div>
+          <div class="spec-label" id="diag_lbl_dim">1. Screen Dimensions (W × H) & Total Area</div>
           <div class="spec-val" id="diag_val_dim">—</div>
         </div>
 
@@ -549,7 +640,7 @@
         </div>
 
         <div class="spec-item">
-          <div class="spec-label" id="diag_lbl_area">4. Total Area (W × H) & Ratio</div>
+          <div class="spec-label" id="diag_lbl_area">4. Total Area & Aspect Ratio</div>
           <div class="spec-val" id="diag_val_area">—</div>
         </div>
 
@@ -704,15 +795,15 @@
       th_sp_sub_usd: "Subtotal ($ USD)",
       th_sp_action: "Action",
       btn_add_spare: "+ Add Spare / Accessory Item",
-      spares_total_label: "Total Spares Cost:",
-      final_banner_label: "★ FINAL GRAND TOTAL (SCREEN + CABLES + PROCESSOR + FREIGHT + SPARES)",
+      spares_sub_title: "Spares & Accessories Subtotal:",
+      final_banner_label: "FINAL GRAND TOTAL (SCREEN + CABLES + PROCESSOR + FREIGHT + SPARES)",
       final_banner_sub: "Grand Total including Screen, Cables, Video Processor, Freight, and all Spares & Free Accessories.",
       sec4_title: "5. Cabinet Layout Diagram & Technical Summary",
       sec4_desc: "Visual line diagram with dimensions, resolution, and detailed metrics.",
-      diag_lbl_dim: "1. Screen Dimensions (W × H)",
+      diag_lbl_dim: "1. Screen Dimensions (W × H) & Total Area",
       diag_lbl_cab: "2. Cabinet Specification (W × H)",
       diag_lbl_qty: "3. Cabinet Quantities (Cols × Rows = Total)",
-      diag_lbl_area: "4. Total Area (W × H) & Ratio",
+      diag_lbl_area: "4. Total Area & Aspect Ratio",
       diag_lbl_res: "5. Total Resolution (W_px × H_px = Total)",
       diag_lbl_power: "6. Power Consumption (Max / Average)",
       diag_cols_label: "Cols",
@@ -806,15 +897,15 @@
       th_sp_sub_usd: "小计 ($ 美金)",
       th_sp_action: "操作",
       btn_add_spare: "+ 添加备品/配件项目",
-      spares_total_label: "全部备品总价:",
-      final_banner_label: "★ 最终总价格 (包含主体、线材、处理器、运费与全部备品)",
+      spares_sub_title: "备品及配件价格小计 (Spares Subtotal):",
+      final_banner_label: "FINAL GRAND TOTAL (包含主体、线材、处理器、运费与全部备品)",
       final_banner_sub: "含显示屏、线材、视频处理器、运费及所有备品赠品配件的最终全案商业报价。",
       sec4_title: "5. 显示屏箱体线条图与技术参数备注",
       sec4_desc: "箱体拼接结构可视化线条图及详细尺寸、分辨率指标汇总。",
-      diag_lbl_dim: "1. 显示屏净尺寸 (宽 × 高)",
+      diag_lbl_dim: "1. 显示屏净尺寸 (宽 × 高) & 总面积",
       diag_lbl_cab: "2. 箱体规格尺寸 (宽 × 高)",
       diag_lbl_qty: "3. 箱体拼接数量 (宽多少 × 高多少 = 总数量)",
-      diag_lbl_area: "4. 实际总面积 (宽 × 高) 与比例",
+      diag_lbl_area: "4. 实际总面积与宽高比例",
       diag_lbl_res: "5. 全屏总像素 (横向像素 × 纵向像素 = 总像素)",
       diag_lbl_power: "6. 功耗参数 (峰值最大功率 / 日常平均功率)",
       diag_cols_label: "列",
@@ -1007,7 +1098,7 @@
     const t = I18N[lang];
     const badge16_9 = p.isClose16_9 ? `<span class="badge-aspect">≈16:9</span>` : '';
     if (isFt) {
-      E(`${key}_dim`).innerHTML = `<b>${p.w_ft.toFixed(2)} × ${p.h_ft.toFixed(2)} ft</b><br><span style="font-size:11px;color:var(--muted)">${p.w_m.toFixed(2)} × ${p.h_m.toFixed(2)} m</span>`;
+      E(`${key}_dim`).innerHTML = `<b>${p.w_ft.toFixed(2)} × ${p.h_ft.toFixed(2)} ft</b><br><span style="font-size:11px;opacity:0.85">${p.w_m.toFixed(2)} × ${p.h_m.toFixed(2)} m</span>`;
       E(`${key}_area`).innerHTML = `<b>${p.area_sqft.toFixed(2)} sq ft</b> (${p.area.toFixed(2)} ㎡) ${badge16_9}`;
     } else {
       E(`${key}_dim`).textContent = `${p.w_mm} × ${p.h_mm} mm (${p.w_m.toFixed(2)} × ${p.h_m.toFixed(2)} m)`;
@@ -1059,7 +1150,10 @@
     renderDiagramAndSpecs(cur, isFt);
 
     const titles = { best: t.title_best, larger: t.title_larger, smaller: t.title_smaller };
-    const dimText = isFt ? `${cur.w_ft.toFixed(2)}x${cur.h_ft.toFixed(2)}ft (${cur.w_m.toFixed(2)}x${cur.h_m.toFixed(2)}m)` : `${cur.w_mm}x${cur.h_mm}mm (${cur.w_m.toFixed(2)}x${cur.h_m.toFixed(2)}m)`;
+    const areaText = isFt ? `${cur.area_sqft.toFixed(2)} sq ft (${cur.area.toFixed(2)} sqm)` : `${cur.area.toFixed(2)} sqm`;
+    const dimText = isFt
+      ? `${cur.w_ft.toFixed(2)}x${cur.h_ft.toFixed(2)}ft | Area: ${areaText}`
+      : `${cur.w_mm}x${cur.h_mm}mm (${cur.w_m.toFixed(2)}x${cur.h_m.toFixed(2)}m) | Area: ${areaText}`;
     
     E('summary_plan_badge_cny').textContent = `${t.sel_prefix}${titles[currentSelection]} [${dimText}]`;
     E('summary_plan_badge_usd').textContent = `${t.sel_prefix}${titles[currentSelection]} [${dimText}]`;
@@ -1074,16 +1168,18 @@
     const isZh = (lang === 'zh');
     const t = I18N[lang];
 
-    ctx.clearRect(0, 0, W, H);
+    // 填充浅灰实心底色
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(0, 0, W, H);
 
     if (isFt) {
-      E('diag_val_dim').innerHTML = `${cur.w_ft.toFixed(2)} × ${cur.h_ft.toFixed(2)} ft<br><span style="font-size:11px;color:var(--muted)">${cur.w_mm} × ${cur.h_mm} mm</span>`;
+      E('diag_val_dim').innerHTML = `${cur.w_ft.toFixed(2)} × ${cur.h_ft.toFixed(2)} ft (${cur.w_mm} × ${cur.h_mm} mm)<br><span style="font-size:12px;color:var(--accent)">Total Area: ${cur.area_sqft.toFixed(2)} sq ft (${cur.area.toFixed(2)} sqm)</span>`;
       const areaUnit1 = isZh ? '平方英尺' : 'sq ft';
       const areaUnit2 = isZh ? '平方米' : 'sqm';
       E('diag_val_area').innerHTML = `${cur.area_sqft.toFixed(2)} ${areaUnit1} (${cur.area.toFixed(2)} ${areaUnit2}) [${cur.ratioStr}]`;
     } else {
-      E('diag_val_dim').textContent = `${cur.w_mm} × ${cur.h_mm} mm (${cur.w_m.toFixed(2)} × ${cur.h_m.toFixed(2)} m)`;
       const sqmStr = isZh ? '平方米' : 'sqm';
+      E('diag_val_dim').innerHTML = `${cur.w_mm} × ${cur.h_mm} mm (${cur.w_m.toFixed(2)} × ${cur.h_m.toFixed(2)} m)<br><span style="font-size:12px;color:var(--accent)">Total Area: ${cur.area.toFixed(2)} ${sqmStr}</span>`;
       E('diag_val_area').textContent = `${cur.area.toFixed(2)} ${sqmStr} (${cur.ratioStr})`;
     }
 
@@ -1159,7 +1255,9 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const topDimText = isFt ? `${t.diag_width_label}: ${cur.w_ft.toFixed(2)} ft (${cur.w_mm} mm)` : `${t.diag_width_label}: ${cur.w_mm} mm (${cur.w_m.toFixed(2)} m)`;
+    const topDimText = isFt
+      ? `${t.diag_width_label}: ${cur.w_ft.toFixed(2)} ft (${cur.w_mm} mm) | Area: ${cur.area_sqft.toFixed(2)} sq ft`
+      : `${t.diag_width_label}: ${cur.w_mm} mm (${cur.w_m.toFixed(2)} m) | Area: ${cur.area.toFixed(2)} sqm`;
     const topPixelText = `${t.diag_px_w}: ${cur.resW} px`;
     ctx.fillText(topDimText, startX + drawW / 2, startY - 32);
     ctx.fillStyle = '#2563eb';
@@ -1233,7 +1331,7 @@
     const totalCny = area * unitCny;
     const totalUsd = area * unitUsd;
 
-    return { totalCny, totalUsd, area, basis };
+    return { totalCny, totalUsd, area, basis, unitCny, unitUsd };
   }
 
   function recalcScreenPrice() {
@@ -1257,7 +1355,6 @@
     recalcGrandTotal();
   }
 
-  // 初始全量渲染备品表格
   function renderSparesTable() {
     const rate = getRate();
     const tbody = E('sparesTableBody');
@@ -1288,7 +1385,6 @@
     recalcGrandTotal();
   }
 
-  // 数量输入（就地更新小计，绝不销毁 DOM 导致失去焦点）
   window.updateSpareQtyOnly = function(idx, val) {
     if (sparesData[idx]) {
       sparesData[idx].qty = parseFloat(val) || 0;
@@ -1298,7 +1394,6 @@
     }
   };
 
-  // 单价输入（就地换算对方币种并更新小计，焦点保持不丢失）
   window.updateSparePriceOnly = function(idx, cur, val) {
     if (sparesData[idx]) {
       const rate = getRate();
@@ -1325,7 +1420,6 @@
     }
   };
 
-  // 就地局部更新行小计
   function refreshSpareRowSubtotal(idx) {
     const rate = getRate();
     const item = sparesData[idx];
@@ -1382,7 +1476,8 @@
     const cur = plansData[currentSelection] || plansData.best;
     const cableCount = cur.totalCables || 0;
 
-    const { totalCny: sCny, totalUsd: sUsd } = getCalculatedScreenTotal();
+    const { totalCny: sCny, totalUsd: sUsd, unitCny, unitUsd, basis } = getCalculatedScreenTotal();
+    const unitTag = basis === 'sqft' ? 'sq ft' : 'sqm';
 
     const cUnitCny = parseFloat(E('cable_unit_cny').value) || 0;
     const cUnitUsd = parseFloat(E('cable_unit_usd').value) || 0;
@@ -1399,14 +1494,14 @@
     const screenMainUsd = sUsd + cableUsd + pUsd + shipUsd;
 
     E('grand_total_cny').textContent = `¥ ${screenMainCny.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-    E('summary_breakdown_cny').textContent = `${t.screen}: ¥${sCny.toFixed(2)} ｜ ${t.cables}(${cableCount}): ¥${cableCny.toFixed(2)} ｜ ${t.proc}: ¥${pCny.toFixed(2)} ｜ ${t.shipping}: ¥${shipCny.toFixed(2)}`;
+    E('summary_breakdown_cny').textContent = `${t.screen}: ¥${sCny.toFixed(2)} (¥${unitCny.toFixed(2)}/${unitTag}) ｜ ${t.cables}(${cableCount}): ¥${cableCny.toFixed(2)} (¥${cUnitCny.toFixed(2)}/pc) ｜ ${t.proc}: ¥${pCny.toFixed(2)} ｜ ${t.shipping}: ¥${shipCny.toFixed(2)}`;
 
     E('grand_total_usd').textContent = `$ ${screenMainUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-    E('summary_breakdown_usd').textContent = `${t.screen}: $${sUsd.toFixed(2)} ｜ ${t.cables}(${cableCount}): $${cableUsd.toFixed(2)} ｜ ${t.proc}: $${pUsd.toFixed(2)} ｜ ${t.shipping}: $${shipUsd.toFixed(2)}`;
+    E('summary_breakdown_usd').textContent = `${t.screen}: $${sUsd.toFixed(2)} ($${unitUsd.toFixed(2)}/${unitTag}) ｜ ${t.cables}(${cableCount}): $${cableUsd.toFixed(2)} ($${cUnitUsd.toFixed(2)}/pc) ｜ ${t.proc}: $${pUsd.toFixed(2)} ｜ ${t.shipping}: $${shipUsd.toFixed(2)}`;
 
     const { totUSD: spUSD, totCNY: spCNY } = getSparesTotals();
-    E('spares_total_cny_text').textContent = `¥ ${spCNY.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-    E('spares_total_usd_text').textContent = `$ ${spUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    E('spares_total_cny_text').textContent = `CNY: ¥ ${spCNY.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    E('spares_total_usd_text').textContent = `USD: $ ${spUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
     const finalCNY = screenMainCny + spCNY;
     const finalUSD = screenMainUsd + spUSD;
@@ -1672,7 +1767,8 @@
     const targetUnitLabel = isFt ? `${E('target_w').value} x ${E('target_h').value} ft` : `${E('target_w').value} x ${E('target_h').value} mm`;
     const basis = E('screen_price_basis').value;
     const unitUsd = parseFloat(E('screen_unit_usd').value) || 0;
-    const screenUnitStr = `$ ${unitUsd.toFixed(2)} (${basis==='sqft'?'/sq ft':'/sqm'})`;
+    const unitTag = basis === 'sqft' ? 'sq ft' : 'sqm';
+    const screenUnitStr = `$ ${unitUsd.toFixed(2)} / ${unitTag}`;
 
     const calcScreenTotalUSD = (p) => {
       const area = (basis === 'sqft') ? (p.area_sqft || 0) : (p.area || 0);
@@ -1715,6 +1811,7 @@
     );
 
     const selPlanTag = currentSelection === 'best' ? 'Best Fit Solution' : (currentSelection === 'larger' ? 'Option A: Larger' : 'Option B: Smaller');
+    const selAreaStr = isFt ? `${selCur.area_sqft.toFixed(2)} sq ft (${selCur.area.toFixed(2)} sqm)` : `${selCur.area.toFixed(2)} sqm`;
     const selScreenUSD = calcScreenTotalUSD(selCur);
     const selCableUSD = selCur.totalCables * cableUnitUSD;
     const selProcUSD = parseFloat(E('proc_price_usd').value||0);
@@ -1726,9 +1823,9 @@
 
     sheetData.push(['', '', '', '']);
     sheetData.push(['--- SELECTED SOLUTION COMMERCIAL QUOTATION ---', '', '', '']);
-    sheetData.push(['Selected Plan', selPlanTag, '', '']);
-    sheetData.push(['Screen Price (USD)', `$ ${selScreenUSD.toFixed(2)}`, '', '']);
-    sheetData.push(['Cables Cost (USD)', `$ ${selCableUSD.toFixed(2)} (${selCur.totalCables} pcs)`, '', '']);
+    sheetData.push(['Selected Plan & Total Area', `${selPlanTag} | Area: ${selAreaStr}`, '', '']);
+    sheetData.push(['Screen Unit Price & Total (USD)', `$ ${selScreenUSD.toFixed(2)}  (Unit: $ ${unitUsd.toFixed(2)} / ${unitTag})`, '', '']);
+    sheetData.push(['Cables Unit Price & Cost (USD)', `$ ${selCableUSD.toFixed(2)}  (${selCur.totalCables} pcs @ $ ${cableUnitUSD.toFixed(2)} / pc)`, '', '']);
     sheetData.push(['Video Processor (USD)', `${proc} ($ ${selProcUSD.toFixed(2)})`, '', '']);
     sheetData.push(['Freight / Shipping (USD)', `$ ${selShipUSD.toFixed(2)}`, '', '']);
     sheetData.push(['Main Screen Subtotal (USD)', `$ ${mainSubUSD.toFixed(2)}`, '', '']);
@@ -1742,22 +1839,22 @@
       const u = item.unitUSD || 0;
       sheetData.push([item.name, q, `$ ${u.toFixed(2)}`, `$ ${(q * u).toFixed(2)}`]);
     });
-    sheetData.push(['Total Spares Cost (USD)', '', '', `$ ${spUSD.toFixed(2)}`]);
+    sheetData.push(['Spares & Accessories Subtotal (USD)', '', '', `$ ${spUSD.toFixed(2)}`]);
 
     sheetData.push(['', '', '', '']);
-    sheetData.push(['★ FINAL GRAND TOTAL (INCL. SPARES) (USD)', `$ ${grandFinalUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, '', '']);
+    sheetData.push(['FINAL GRAND TOTAL (INCL. SPARES) (USD)', `$ ${grandFinalUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, '', '']);
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(sheetData);
 
-    ws['!cols'] = [{ wch: 36 }, { wch: 32 }, { wch: 28 }, { wch: 28 }];
+    ws['!cols'] = [{ wch: 38 }, { wch: 38 }, { wch: 28 }, { wch: 28 }];
     ws['!views'] = [{ showGridLines: true }];
 
     XLSX.utils.book_append_sheet(wb, ws, "Quotation");
     XLSX.writeFile(wb, `${quoteNo}_LED_Quotation_${dateStr}.xlsx`);
   });
 
-  // 导出 PDF
+  // 导出 PDF（未选中方案的列文字以深灰色显示，选中方案列突出高亮）
   E('exportPdf').addEventListener('click', () => {
     try {
       if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -1781,12 +1878,17 @@
       const validity = E('validity_select').value;
       const dateStr = new Date().toISOString().slice(0,10);
 
+      // 确定当前选中的方案列索引 (1 = Best Fit, 2 = Option A, 3 = Option B)
+      const activeColIdx = currentSelection === 'best' ? 1 : (currentSelection === 'larger' ? 2 : 3);
+
       // 顶部 Banner
       doc.setFillColor(30, 41, 59);
       doc.rect(0, 0, 210, 24, 'F');
       doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
       doc.text('COMMERCIAL QUOTATION / COMMERCIAL INVOICE', 14, 12);
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(203, 213, 225);
       doc.text(`Quote No: ${quoteNo}   |   Date: ${new Date().toLocaleDateString()}   |   Currency: USD ($)`, 14, 19);
@@ -1802,14 +1904,15 @@
 
       const headers = [
         'Specification / Metric',
-        '[Best Fit Solution]',
-        '[Option A: Larger]',
-        '[Option B: Smaller]'
+        currentSelection === 'best' ? '[Best Fit - SELECTED]' : '[Best Fit Solution]',
+        currentSelection === 'larger' ? '[Option A - SELECTED]' : '[Option A: Larger]',
+        currentSelection === 'smaller' ? '[Option B - SELECTED]' : '[Option B: Smaller]'
       ];
 
       const cableUnitUSD = parseFloat(E('cable_unit_usd').value||0);
       const basis = E('screen_price_basis').value;
       const unitUsd = parseFloat(E('screen_unit_usd').value) || 0;
+      const unitTag = basis === 'sqft' ? 'sq ft' : 'sqm';
 
       const calcScreenTotalUSD = (p) => {
         const area = (basis === 'sqft') ? (p.area_sqft || 0) : (p.area || 0);
@@ -1846,21 +1949,44 @@
           cellPadding: 1.6,
           valign: 'middle',
           overflow: 'linebreak',
-          textColor: [15, 23, 42],
           lineColor: [226, 232, 240],
           lineWidth: 0.2
         },
         headStyles: {
-          fillColor: [37, 99, 235],
-          textColor: [255, 255, 255],
+          fillColor: [71, 85, 105], // 未选中列头默认灰 slate
+          textColor: [226, 232, 240],
           fontStyle: 'bold',
           halign: 'center'
         },
-        alternateRowStyles: {
-          fillColor: [248, 250, 252]
+        didParseCell: function(data) {
+          // 1. 表头动态高亮当前选中的方案列
+          if (data.section === 'head') {
+            if (data.column.index === activeColIdx) {
+              data.cell.styles.fillColor = [37, 99, 235]; // 品牌蓝突出表头
+              data.cell.styles.textColor = [255, 255, 255];
+            } else if (data.column.index === 0) {
+              data.cell.styles.fillColor = [30, 41, 59];
+              data.cell.styles.textColor = [255, 255, 255];
+            }
+          }
+          // 2. 数据行：选中方案列高亮加粗，未选中方案列以深灰色显示
+          if (data.section === 'body') {
+            if (data.column.index === 0) {
+              data.cell.styles.textColor = [30, 41, 59];
+              data.cell.styles.fontStyle = 'bold';
+            } else if (data.column.index === activeColIdx) {
+              data.cell.styles.textColor = [15, 23, 42];
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.fillColor = [239, 246, 255]; // 浅蓝微光背景突出
+            } else {
+              // 未选中方案列以深灰色显示
+              data.cell.styles.textColor = [148, 163, 184];
+              data.cell.styles.fontStyle = 'normal';
+            }
+          }
         },
         columnStyles: {
-          0: { cellWidth: 54, fontStyle: 'bold' },
+          0: { cellWidth: 54 },
           1: { cellWidth: 43, halign: 'center' },
           2: { cellWidth: 43, halign: 'center' },
           3: { cellWidth: 43, halign: 'center' }
@@ -1871,10 +1997,12 @@
       let currentY = doc.lastAutoTable.finalY + 5;
 
       const selPlanTag = currentSelection === 'best' ? 'Best Fit Solution' : (currentSelection === 'larger' ? 'Option A: Larger' : 'Option B: Smaller');
+      const selAreaStr = isFt ? `${selCur.area_sqft.toFixed(2)} sq ft (${selCur.area.toFixed(2)} sqm)` : `${selCur.area.toFixed(2)} sqm`;
       const selDimShow = isFt ? `${selCur.w_ft.toFixed(2)} x ${selCur.h_ft.toFixed(2)} ft` : `${selCur.w_m.toFixed(2)} x ${selCur.h_m.toFixed(2)} m`;
-      const cardTitle = `Selected Solution: [ ${selPlanTag} - ${selDimShow} ]`;
+      const cardTitle = `Selected Solution: [ ${selPlanTag} - ${selDimShow} | Area: ${selAreaStr} ]`;
 
-      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.8);
       doc.setFillColor(241, 245, 249);
       doc.roundedRect(14, currentY, 182, 38, 2, 2, 'F');
 
@@ -1882,6 +2010,7 @@
       doc.text(cardTitle, 18, currentY + 6);
 
       let textStartY = currentY + 12;
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(8.2);
       doc.setTextColor(71, 85, 105);
 
@@ -1891,18 +2020,23 @@
       const shUsd = parseFloat(E('shipping_usd').value||0).toFixed(2);
       const mainGrandUSD = (parseFloat(sUsd) + parseFloat(cabTotalUsd) + parseFloat(pUsd) + parseFloat(shUsd)).toFixed(2);
 
-      doc.text(`- Screen Body: $ ${sUsd}  |  Cables (${selCur.totalCables} pcs): $ ${cabTotalUsd}`, 18, textStartY);
-      doc.text(`- Video Processor [${proc}]: $ ${pUsd}  |  Freight (${terms}): $ ${shUsd}`, 18, textStartY + 5.5);
+      doc.text(`- Screen Body: $ ${sUsd} ($ ${unitUsd.toFixed(2)}/${unitTag})   |   Cables (${selCur.totalCables} pcs): $ ${cabTotalUsd} ($ ${cableUnitUSD.toFixed(2)}/pc)`, 18, textStartY);
+      doc.text(`- Video Processor [${proc}]: $ ${pUsd}   |   Freight (${terms}): $ ${shUsd}`, 18, textStartY + 5.5);
 
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(9.8);
       doc.setTextColor(37, 99, 235);
       doc.text(`Main Screen Subtotal (USD):   $ ${parseFloat(mainGrandUSD).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, 18, textStartY + 14);
 
-      // 纯英文备品表格
+      // 纯英文备品表格（含小计行）
       let spareTableY = currentY + 44;
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       doc.setTextColor(30, 41, 59);
-      doc.text('Spares & Accessories Breakdown (English Only):', 14, spareTableY);
+      doc.text('Spares & Accessories Breakdown:', 14, spareTableY);
+
+      const { totUSD: spTotalUSD } = getSparesTotals();
+      const finalAllUSD = parseFloat(mainGrandUSD) + spTotalUSD;
 
       const spHeaders = ['Item Description', 'Qty (pcs)', 'Unit Price (USD)', 'Subtotal (USD)'];
       const spBody = sparesData.map(item => {
@@ -1910,9 +2044,10 @@
         const u = item.unitUSD || 0;
         return [item.name, q, `$ ${u.toFixed(2)}`, `$ ${(q * u).toFixed(2)}`];
       });
-
-      const { totUSD: spTotalUSD } = getSparesTotals();
-      const finalAllUSD = parseFloat(mainGrandUSD) + spTotalUSD;
+      spBody.push([
+        { content: 'Spares & Accessories Subtotal (USD)', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold', fillColor: [241, 245, 249] } },
+        { content: `$ ${spTotalUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, styles: { halign: 'right', fontStyle: 'bold', textColor: [37, 99, 235], fillColor: [241, 245, 249] } }
+      ]);
 
       doc.autoTable({
         startY: spareTableY + 3,
@@ -1942,23 +2077,37 @@
         margin: { left: 14, right: 14 }
       });
 
-      let afterSparesY = doc.lastAutoTable.finalY + 5;
-      if (afterSparesY > 265) {
+      let afterSparesY = doc.lastAutoTable.finalY + 6;
+      if (afterSparesY > 262) {
         doc.addPage();
         afterSparesY = 16;
       }
 
-      doc.setFillColor(9, 13, 22);
-      doc.roundedRect(14, afterSparesY, 182, 16, 2, 2, 'F');
-      doc.setFontSize(10.5);
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(14, afterSparesY, 182, 20, 2.5, 2.5, 'F');
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text('FINAL GRAND TOTAL (SCREEN + FREIGHT + ALL SPARES)', 20, afterSparesY + 8.5);
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Terms: ${terms}  |  All amounts in USD`, 20, afterSparesY + 14.5);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13.5);
       doc.setTextColor(56, 189, 248);
-      doc.text(`★ FINAL GRAND TOTAL (INCL. SPARES):  $ ${finalAllUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, 18, afterSparesY + 10.5);
+      const grandTotalFormatted = `USD $ ${finalAllUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+      doc.text(grandTotalFormatted, 190, afterSparesY + 12.5, { align: 'right' });
 
       // 第2页 图纸与规格总结
       doc.addPage();
       doc.setFillColor(30, 41, 59);
       doc.rect(0, 0, 210, 20, 'F');
       doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.text('Cabinet Layout Diagram & Technical Summary', 14, 13);
 
@@ -1979,18 +2128,22 @@
       doc.roundedRect(14, specBoxY, 182, 75, 2, 2, 'S');
 
       doc.setTextColor(30, 41, 59);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text('Technical Specifications Summary:', 20, specBoxY + 9);
 
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(8.8);
       doc.setTextColor(51, 65, 85);
       const specLineGap = 9;
       const sStartY = specBoxY + 18;
 
-      const dimStr = isFt ? `${selCur.w_ft.toFixed(2)} x ${selCur.h_ft.toFixed(2)} ft (${selCur.w_mm} x ${selCur.h_mm} mm)` : `${selCur.w_mm} x ${selCur.h_mm} mm (${selCur.w_m.toFixed(2)} x ${selCur.h_m.toFixed(2)} m)`;
+      const dimStr = isFt
+        ? `${selCur.w_ft.toFixed(2)} x ${selCur.h_ft.toFixed(2)} ft (${selCur.w_mm} x ${selCur.h_mm} mm) | Area: ${selCur.area_sqft.toFixed(2)} sq ft`
+        : `${selCur.w_mm} x ${selCur.h_mm} mm (${selCur.w_m.toFixed(2)} x ${selCur.h_m.toFixed(2)} m) | Area: ${selCur.area.toFixed(2)} sqm`;
       const areaStr = isFt ? `${selCur.area_sqft.toFixed(2)} sq ft (${selCur.area.toFixed(2)} sqm) [${selCur.ratioStr}]` : `${selCur.area.toFixed(2)} sqm [${selCur.ratioStr}]`;
 
-      doc.text(`1. Screen Dimensions:  ${dimStr}`, 20, sStartY);
+      doc.text(`1. Screen Dimensions & Area:  ${dimStr}`, 20, sStartY);
       doc.text(`2. Cabinet Specification:  ${selCur.cabW} x ${selCur.cabH} mm`, 20, sStartY + specLineGap);
       doc.text(`3. Cabinet Quantities:  ${selCur.cols} Cols x ${selCur.rows} Rows = ${selCur.totalCabs} Cabinets`, 20, sStartY + specLineGap * 2);
       doc.text(`4. Total Area & Ratio:  ${areaStr}`, 20, sStartY + specLineGap * 3);
@@ -2023,6 +2176,11 @@
     if (!loadedFromUrl) {
       loadFromStorage();
     }
+
+    // 同步卡片激活样式状态
+    ['best', 'larger', 'smaller'].forEach(k => {
+      E(`card_${k}`).classList.toggle('active', k === currentSelection);
+    });
 
     applyLanguage('en');
     syncCurrency('cable_unit_cny');
