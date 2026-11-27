@@ -58,7 +58,7 @@
     cursor:pointer;
     transition:all 0.25s;
     position:relative;
-    color:#64748b; /* 未选中默认深灰文字 */
+    color:#64748b;
   }
   .plan-card:hover{
     transform:translateY(-2px);
@@ -225,8 +225,8 @@
         <input id="proj_name" type="text" placeholder="e.g. Ballroom Video Wall">
       </div>
       <div class="field">
-        <label id="lbl_quote_no">Quotation No.</label>
-        <input id="quote_no" type="text" value="TT-2026-001">
+        <label id="lbl_quote_no">Invoice / Quote No.</label>
+        <input id="quote_no" type="text" value="">
       </div>
       <div class="field">
         <label id="lbl_incoterms">Trade Terms (Incoterms)</label>
@@ -661,8 +661,8 @@
 <!-- 引入专业 jsPDF 及 自动表格排版引擎 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<!-- 引入 SheetJS 库 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- 引入支持完整字体、背景色与边框美化的 xlsx-js-style 引擎 -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
 <script>
 (() => {
@@ -670,6 +670,15 @@
   const DEBOUNCE = 160;
   const MM_PER_FT = 304.8;
   const SQFT_PER_SQM = 10.7639104;
+
+  // 生成当天默认单号: T + YYYYMMDD + 001 (例如 T20261127001)
+  function getTodayDefaultQuoteNo() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    return `T${yyyy}${mm}${dd}001`;
+  }
 
   let lang = 'en'; 
   let currentSelection = 'best';
@@ -730,7 +739,7 @@
       sec0_desc: "Custom client and business terms for professional quotation export.",
       lbl_client_name: "Client / Company",
       lbl_proj_name: "Project Name",
-      lbl_quote_no: "Quotation No.",
+      lbl_quote_no: "Invoice / Quote No.",
       lbl_incoterms: "Trade Terms (Incoterms)",
       lbl_packaging: "Packaging Type",
       lbl_validity: "Validity",
@@ -832,7 +841,7 @@
       sec0_desc: "可配置客户名称、单号与贸易条款，专业报价单直接印入抬头。",
       lbl_client_name: "客户 / 公司名称",
       lbl_proj_name: "项目名称",
-      lbl_quote_no: "报价单号 (Quote No)",
+      lbl_quote_no: "发票 / 报价单号 (Invoice No)",
       lbl_incoterms: "贸易条款 (Incoterms)",
       lbl_packaging: "包装形式",
       lbl_validity: "报价有效期",
@@ -1168,7 +1177,6 @@
     const isZh = (lang === 'zh');
     const t = I18N[lang];
 
-    // 填充浅灰实心底色
     ctx.fillStyle = '#f1f5f9';
     ctx.fillRect(0, 0, W, H);
 
@@ -1746,7 +1754,9 @@
     }
   });
 
-  // 导出 Excel (.xlsx)
+  // =========================================================================
+  // 优化项 2：高级美化版 Excel (.xlsx) 导出（含字号、颜色、对齐、选中方案高亮、未选中浅灰）
+  // =========================================================================
   E('exportExcel').addEventListener('click', () => {
     const b = plansData.best;
     const l = plansData.larger;
@@ -1758,7 +1768,7 @@
 
     const client = E('client_name').value || 'Valued Customer';
     const proj = E('proj_name').value || 'LED Video Wall Project';
-    const quoteNo = E('quote_no').value || 'TT-2026-001';
+    const quoteNo = E('quote_no').value || getTodayDefaultQuoteNo();
     const terms = E('incoterms_select').value;
     const pack = E('packaging_select').value;
     const validity = E('validity_select').value;
@@ -1775,23 +1785,148 @@
       return (area * unitUsd);
     };
 
-    const sheetData = [
-      ['COMMERCIAL QUOTATION / COMMERCIAL INVOICE', '', '', ''],
-      ['Quotation No.', quoteNo, 'Date', dateStr],
+    const activeColIdx = currentSelection === 'best' ? 1 : (currentSelection === 'larger' ? 2 : 3);
+
+    // 预定义样式对象
+    const borderThin = {
+      top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+    };
+
+    const styleTitleBanner = {
+      font: { name: 'Arial', sz: 15, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '1E293B' } },
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+
+    const styleMetaLabel = {
+      font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '475569' } },
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+
+    const styleMetaVal = {
+      font: { name: 'Arial', sz: 10, bold: false, color: { rgb: '0F172A' } },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+
+    const styleSectionHeader = {
+      font: { name: 'Arial', sz: 11, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '334155' } },
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+
+    // 表头样式（区分选中列和未选中列）
+    const styleThMetric = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '1E293B' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+    const styleThSelected = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '2563EB' } }, // 品牌亮蓝突出表头
+      border: borderThin,
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
+    const styleThUnselected = {
+      font: { name: 'Arial', sz: 10, bold: false, color: { rgb: 'CBD5E1' } },
+      fill: { fgColor: { rgb: '64748B' } }, // 暗灰收敛表头
+      border: borderThin,
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
+
+    // 数据单元格样式
+    const styleMetricCell = {
+      font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '1E293B' } },
+      fill: { fgColor: { rgb: 'F8FAFC' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+    const styleSelectedCell = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '0F172A' } },
+      fill: { fgColor: { rgb: 'EFF6FF' } }, // 浅蓝底突出选中方案
+      border: borderThin,
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
+    const styleUnselectedCell = {
+      font: { name: 'Arial', sz: 10, bold: false, color: { rgb: '94A3B8' } }, // 浅灰色文字弱化未选中方案
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
+
+    // 构建单元格矩阵
+    const wsData = [];
+    const rowHeights = [];
+    const merges = [];
+
+    // Row 0: 顶部标题 Banner
+    wsData.push([
+      { v: 'COMMERCIAL QUOTATION / COMMERCIAL INVOICE', s: styleTitleBanner },
+      { v: '', s: styleTitleBanner },
+      { v: '', s: styleTitleBanner },
+      { v: '', s: styleTitleBanner }
+    ]);
+    merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } });
+    rowHeights.push({ hpt: 30 });
+
+    // Row 1-4: 商业抬头信息
+    const metaRows = [
+      ['Invoice / Quote No.', quoteNo, 'Date', dateStr],
       ['Client / Company', client, 'Project Name', proj],
       ['Trade Terms', terms, 'Packaging', pack],
-      ['Validity', validity, 'Currency', 'USD ($)'],
-      ['Target Dimensions', targetUnitLabel, '', ''],
-      ['', '', '', ''],
-      ['Specification / Metric', 'Best Fit Solution', 'Option A: Larger', 'Option B: Smaller']
+      ['Validity', validity, 'Currency', 'USD ($)']
     ];
+    metaRows.forEach(mr => {
+      wsData.push([
+        { v: mr[0], s: styleMetaLabel },
+        { v: mr[1], s: styleMetaVal },
+        { v: mr[2], s: styleMetaLabel },
+        { v: mr[3], s: styleMetaVal }
+      ]);
+      rowHeights.push({ hpt: 20 });
+    });
 
+    // Row 5: Target Dimensions
+    wsData.push([
+      { v: 'Target Dimensions', s: styleMetaLabel },
+      { v: targetUnitLabel, s: styleMetaVal },
+      { v: '', s: styleMetaVal },
+      { v: '', s: styleMetaVal }
+    ]);
+    merges.push({ s: { r: 5, c: 1 }, e: { r: 5, c: 3 } });
+    rowHeights.push({ hpt: 20 });
+
+    // Row 6: 空行分隔
+    wsData.push(['', '', '', '']);
+    rowHeights.push({ hpt: 12 });
+
+    // Row 7: 对比主表表头
+    const compHeaders = [
+      'Specification / Metric',
+      currentSelection === 'best' ? 'Best Fit Solution [SELECTED]' : 'Best Fit Solution',
+      currentSelection === 'larger' ? 'Option A: Larger [SELECTED]' : 'Option A: Larger',
+      currentSelection === 'smaller' ? 'Option B: Smaller [SELECTED]' : 'Option B: Smaller'
+    ];
+    wsData.push(compHeaders.map((hText, cIdx) => {
+      if (cIdx === 0) return { v: hText, s: styleThMetric };
+      return { v: hText, s: cIdx === activeColIdx ? styleThSelected : styleThUnselected };
+    }));
+    rowHeights.push({ hpt: 24 });
+
+    // 对比主表数据行
+    const compRows = [];
     if (isFt) {
-      sheetData.push(['Actual Size (ft)', `${b.w_ft.toFixed(2)} x ${b.h_ft.toFixed(2)} ft`, `${l.w_ft.toFixed(2)} x ${l.h_ft.toFixed(2)} ft`, `${s.w_ft.toFixed(2)} x ${s.h_ft.toFixed(2)} ft`]);
-      sheetData.push(['Actual Area (sq ft)', `${b.area_sqft.toFixed(2)} sq ft`, `${l.area_sqft.toFixed(2)} sq ft`, `${s.area_sqft.toFixed(2)} sq ft`]);
+      compRows.push(['Actual Size (ft)', `${b.w_ft.toFixed(2)} x ${b.h_ft.toFixed(2)} ft`, `${l.w_ft.toFixed(2)} x ${l.h_ft.toFixed(2)} ft`, `${s.w_ft.toFixed(2)} x ${s.h_ft.toFixed(2)} ft`]);
+      compRows.push(['Actual Area (sq ft)', `${b.area_sqft.toFixed(2)} sq ft`, `${l.area_sqft.toFixed(2)} sq ft`, `${s.area_sqft.toFixed(2)} sq ft`]);
     }
-
-    sheetData.push(
+    compRows.push(
       ['Actual Dimensions (mm)', `${b.w_mm} x ${b.h_mm} mm`, `${l.w_mm} x ${l.h_mm} mm`, `${s.w_mm} x ${s.h_mm} mm`],
       ['Actual Dimensions (m)', `${b.w_m.toFixed(2)} x ${b.h_m.toFixed(2)} m`, `${l.w_m.toFixed(2)} x ${l.h_m.toFixed(2)} m`, `${s.w_m.toFixed(2)} x ${s.h_m.toFixed(2)} m`],
       ['Actual Area (sqm)', `${b.area.toFixed(2)} sqm`, `${l.area.toFixed(2)} sqm`, `${s.area.toFixed(2)} sqm`],
@@ -1810,6 +1945,29 @@
       ['Screen Price (USD)', `$ ${calcScreenTotalUSD(b).toFixed(2)}`, `$ ${calcScreenTotalUSD(l).toFixed(2)}`, `$ ${calcScreenTotalUSD(s).toFixed(2)}`]
     );
 
+    compRows.forEach(rArr => {
+      wsData.push(rArr.map((val, cIdx) => {
+        if (cIdx === 0) return { v: val, s: styleMetricCell };
+        return { v: val, s: cIdx === activeColIdx ? styleSelectedCell : styleUnselectedCell };
+      }));
+      rowHeights.push({ hpt: 20 });
+    });
+
+    // 空行分隔
+    wsData.push(['', '', '', '']);
+    rowHeights.push({ hpt: 12 });
+
+    // 选定方案商业结算区域
+    const selHeaderRowIdx = wsData.length;
+    wsData.push([
+      { v: 'SELECTED SOLUTION COMMERCIAL QUOTATION', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader }
+    ]);
+    merges.push({ s: { r: selHeaderRowIdx, c: 0 }, e: { r: selHeaderRowIdx, c: 3 } });
+    rowHeights.push({ hpt: 24 });
+
     const selPlanTag = currentSelection === 'best' ? 'Best Fit Solution' : (currentSelection === 'larger' ? 'Option A: Larger' : 'Option B: Smaller');
     const selAreaStr = isFt ? `${selCur.area_sqft.toFixed(2)} sq ft (${selCur.area.toFixed(2)} sqm)` : `${selCur.area.toFixed(2)} sqm`;
     const selScreenUSD = calcScreenTotalUSD(selCur);
@@ -1817,44 +1975,159 @@
     const selProcUSD = parseFloat(E('proc_price_usd').value||0);
     const selShipUSD = parseFloat(E('shipping_usd').value||0);
     const { totUSD: spUSD } = getSparesTotals();
-
     const mainSubUSD = selScreenUSD + selCableUSD + selProcUSD + selShipUSD;
     const grandFinalUSD = mainSubUSD + spUSD;
 
-    sheetData.push(['', '', '', '']);
-    sheetData.push(['--- SELECTED SOLUTION COMMERCIAL QUOTATION ---', '', '', '']);
-    sheetData.push(['Selected Plan & Total Area', `${selPlanTag} | Area: ${selAreaStr}`, '', '']);
-    sheetData.push(['Screen Unit Price & Total (USD)', `$ ${selScreenUSD.toFixed(2)}  (Unit: $ ${unitUsd.toFixed(2)} / ${unitTag})`, '', '']);
-    sheetData.push(['Cables Unit Price & Cost (USD)', `$ ${selCableUSD.toFixed(2)}  (${selCur.totalCables} pcs @ $ ${cableUnitUSD.toFixed(2)} / pc)`, '', '']);
-    sheetData.push(['Video Processor (USD)', `${proc} ($ ${selProcUSD.toFixed(2)})`, '', '']);
-    sheetData.push(['Freight / Shipping (USD)', `$ ${selShipUSD.toFixed(2)}`, '', '']);
-    sheetData.push(['Main Screen Subtotal (USD)', `$ ${mainSubUSD.toFixed(2)}`, '', '']);
+    const styleQuoteVal = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '0F172A' } },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+    const styleSubRow = {
+      font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '1D4ED8' } },
+      fill: { fgColor: { rgb: 'EFF6FF' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
 
-    sheetData.push(['', '', '', '']);
-    sheetData.push(['--- SPARES & ACCESSORIES BREAKDOWN ---', '', '', '']);
-    sheetData.push(['Item Description', 'Qty (pcs)', 'Unit Price (USD)', 'Subtotal (USD)']);
-    
+    const quoteDetails = [
+      ['Selected Plan & Total Area', `${selPlanTag}  |  Total Area: ${selAreaStr}`, styleQuoteVal],
+      ['Screen Unit Price & Total (USD)', `$ ${selScreenUSD.toFixed(2)}   (Unit: $ ${unitUsd.toFixed(2)} / ${unitTag})`, styleQuoteVal],
+      ['Cables Unit Price & Cost (USD)', `$ ${selCableUSD.toFixed(2)}   (${selCur.totalCables} pcs @ $ ${cableUnitUSD.toFixed(2)} / pc)`, styleQuoteVal],
+      ['Video Processor (USD)', `${proc}   ($ ${selProcUSD.toFixed(2)})`, styleQuoteVal],
+      ['Freight / Shipping (USD)', `$ ${selShipUSD.toFixed(2)}`, styleQuoteVal],
+      ['Main Screen Subtotal (USD)', `$ ${mainSubUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, styleSubRow]
+    ];
+
+    quoteDetails.forEach(qd => {
+      const rIdx = wsData.length;
+      wsData.push([
+        { v: qd[0], s: styleMetricCell },
+        { v: qd[1], s: qd[2] },
+        { v: '', s: qd[2] },
+        { v: '', s: qd[2] }
+      ]);
+      merges.push({ s: { r: rIdx, c: 1 }, e: { r: rIdx, c: 3 } });
+      rowHeights.push({ hpt: 21 });
+    });
+
+    // 空行
+    wsData.push(['', '', '', '']);
+    rowHeights.push({ hpt: 12 });
+
+    // 备品与配件区域
+    const spSecRowIdx = wsData.length;
+    wsData.push([
+      { v: 'SPARES & ACCESSORIES BREAKDOWN', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader },
+      { v: '', s: styleSectionHeader }
+    ]);
+    merges.push({ s: { r: spSecRowIdx, c: 0 }, e: { r: spSecRowIdx, c: 3 } });
+    rowHeights.push({ hpt: 24 });
+
+    // 备品表头
+    wsData.push([
+      { v: 'Item Description', s: styleThMetric },
+      { v: 'Qty (pcs)', s: styleThMetric },
+      { v: 'Unit Price (USD)', s: styleThMetric },
+      { v: 'Subtotal (USD)', s: styleThMetric }
+    ]);
+    rowHeights.push({ hpt: 22 });
+
+    const styleSpText = {
+      font: { name: 'Arial', sz: 10, color: { rgb: '1E293B' } },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+    const styleSpCenter = {
+      font: { name: 'Arial', sz: 10, color: { rgb: '1E293B' } },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
+    const styleSpRight = {
+      font: { name: 'Arial', sz: 10, color: { rgb: '1E293B' } },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: borderThin,
+      alignment: { horizontal: 'right', vertical: 'center' }
+    };
+
     sparesData.forEach(item => {
       const q = item.qty || 0;
       const u = item.unitUSD || 0;
-      sheetData.push([item.name, q, `$ ${u.toFixed(2)}`, `$ ${(q * u).toFixed(2)}`]);
+      wsData.push([
+        { v: item.name, s: styleSpText },
+        { v: q, s: styleSpCenter },
+        { v: `$ ${u.toFixed(2)}`, s: styleSpRight },
+        { v: `$ ${(q * u).toFixed(2)}`, s: styleSpRight }
+      ]);
+      rowHeights.push({ hpt: 19 });
     });
-    sheetData.push(['Spares & Accessories Subtotal (USD)', '', '', `$ ${spUSD.toFixed(2)}`]);
 
-    sheetData.push(['', '', '', '']);
-    sheetData.push(['FINAL GRAND TOTAL (INCL. SPARES) (USD)', `$ ${grandFinalUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, '', '']);
+    // 备品小计行
+    const spSubRowIdx = wsData.length;
+    const styleSpSubLabel = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '1E293B' } },
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      border: borderThin,
+      alignment: { horizontal: 'right', vertical: 'center' }
+    };
+    const styleSpSubVal = {
+      font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '2563EB' } },
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      border: borderThin,
+      alignment: { horizontal: 'right', vertical: 'center' }
+    };
+    wsData.push([
+      { v: 'Spares & Accessories Subtotal (USD)', s: styleSpSubLabel },
+      { v: '', s: styleSpSubLabel },
+      { v: '', s: styleSpSubLabel },
+      { v: `$ ${spUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, s: styleSpSubVal }
+    ]);
+    merges.push({ s: { r: spSubRowIdx, c: 0 }, e: { r: spSubRowIdx, c: 2 } });
+    rowHeights.push({ hpt: 22 });
+
+    // 空行
+    wsData.push(['', '', '', '']);
+    rowHeights.push({ hpt: 12 });
+
+    // 最终总计横幅 (FINAL GRAND TOTAL)
+    const grandRowIdx = wsData.length;
+    const styleGrandLabel = {
+      font: { name: 'Arial', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '0F172A' } },
+      alignment: { horizontal: 'left', vertical: 'center' }
+    };
+    const styleGrandVal = {
+      font: { name: 'Arial', sz: 14, bold: true, color: { rgb: '38BDF8' } },
+      fill: { fgColor: { rgb: '0F172A' } },
+      alignment: { horizontal: 'right', vertical: 'center' }
+    };
+    wsData.push([
+      { v: 'FINAL GRAND TOTAL (INCL. SPARES) (USD)', s: styleGrandLabel },
+      { v: '', s: styleGrandLabel },
+      { v: '', s: styleGrandLabel },
+      { v: `$ ${grandFinalUSD.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, s: styleGrandVal }
+    ]);
+    merges.push({ s: { r: grandRowIdx, c: 0 }, e: { r: grandRowIdx, c: 2 } });
+    rowHeights.push({ hpt: 30 });
 
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-    ws['!cols'] = [{ wch: 38 }, { wch: 38 }, { wch: 28 }, { wch: 28 }];
+    ws['!cols'] = [{ wch: 38 }, { wch: 34 }, { wch: 32 }, { wch: 32 }];
+    ws['!rows'] = rowHeights;
+    ws['!merges'] = merges;
     ws['!views'] = [{ showGridLines: true }];
 
     XLSX.utils.book_append_sheet(wb, ws, "Quotation");
     XLSX.writeFile(wb, `${quoteNo}_LED_Quotation_${dateStr}.xlsx`);
   });
 
-  // 导出 PDF（未选中方案的列文字以深灰色显示，选中方案列突出高亮）
+  // 导出 PDF
   E('exportPdf').addEventListener('click', () => {
     try {
       if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -1872,16 +2145,14 @@
       
       const client = E('client_name').value || 'Valued Customer';
       const proj = E('proj_name').value || 'LED Video Wall Project';
-      const quoteNo = E('quote_no').value || 'TT-2026-001';
+      const quoteNo = E('quote_no').value || getTodayDefaultQuoteNo();
       const terms = E('incoterms_select').value;
       const pack = E('packaging_select').value;
       const validity = E('validity_select').value;
       const dateStr = new Date().toISOString().slice(0,10);
 
-      // 确定当前选中的方案列索引 (1 = Best Fit, 2 = Option A, 3 = Option B)
       const activeColIdx = currentSelection === 'best' ? 1 : (currentSelection === 'larger' ? 2 : 3);
 
-      // 顶部 Banner
       doc.setFillColor(30, 41, 59);
       doc.rect(0, 0, 210, 24, 'F');
       doc.setTextColor(255, 255, 255);
@@ -1891,9 +2162,8 @@
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(203, 213, 225);
-      doc.text(`Quote No: ${quoteNo}   |   Date: ${new Date().toLocaleDateString()}   |   Currency: USD ($)`, 14, 19);
+      doc.text(`Invoice / Quote No: ${quoteNo}   |   Date: ${new Date().toLocaleDateString()}   |   Currency: USD ($)`, 14, 19);
 
-      // 客户信息栏
       doc.setFillColor(248, 250, 252);
       doc.roundedRect(14, 28, 182, 16, 2, 2, 'F');
       doc.setTextColor(71, 85, 105);
@@ -1953,23 +2223,21 @@
           lineWidth: 0.2
         },
         headStyles: {
-          fillColor: [71, 85, 105], // 未选中列头默认灰 slate
+          fillColor: [71, 85, 105],
           textColor: [226, 232, 240],
           fontStyle: 'bold',
           halign: 'center'
         },
         didParseCell: function(data) {
-          // 1. 表头动态高亮当前选中的方案列
           if (data.section === 'head') {
             if (data.column.index === activeColIdx) {
-              data.cell.styles.fillColor = [37, 99, 235]; // 品牌蓝突出表头
+              data.cell.styles.fillColor = [37, 99, 235];
               data.cell.styles.textColor = [255, 255, 255];
             } else if (data.column.index === 0) {
               data.cell.styles.fillColor = [30, 41, 59];
               data.cell.styles.textColor = [255, 255, 255];
             }
           }
-          // 2. 数据行：选中方案列高亮加粗，未选中方案列以深灰色显示
           if (data.section === 'body') {
             if (data.column.index === 0) {
               data.cell.styles.textColor = [30, 41, 59];
@@ -1977,9 +2245,8 @@
             } else if (data.column.index === activeColIdx) {
               data.cell.styles.textColor = [15, 23, 42];
               data.cell.styles.fontStyle = 'bold';
-              data.cell.styles.fillColor = [239, 246, 255]; // 浅蓝微光背景突出
+              data.cell.styles.fillColor = [239, 246, 255];
             } else {
-              // 未选中方案列以深灰色显示
               data.cell.styles.textColor = [148, 163, 184];
               data.cell.styles.fontStyle = 'normal';
             }
@@ -2028,7 +2295,6 @@
       doc.setTextColor(37, 99, 235);
       doc.text(`Main Screen Subtotal (USD):   $ ${parseFloat(mainGrandUSD).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`, 18, textStartY + 14);
 
-      // 纯英文备品表格（含小计行）
       let spareTableY = currentY + 44;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
@@ -2158,6 +2424,9 @@
   });
 
   function initApp() {
+    // 1. 先赋当天默认单号 T+YYYYMMDD+001
+    E('quote_no').value = getTodayDefaultQuoteNo();
+
     const urlParams = new URLSearchParams(window.location.search);
     let loadedFromUrl = false;
     if (urlParams.has('w')) {
@@ -2175,9 +2444,12 @@
 
     if (!loadedFromUrl) {
       loadFromStorage();
+      // 若存储中的编号仍是旧格式或为空，更新为当天编号
+      if (!E('quote_no').value || E('quote_no').value.startsWith('TT-')) {
+        E('quote_no').value = getTodayDefaultQuoteNo();
+      }
     }
 
-    // 同步卡片激活样式状态
     ['best', 'larger', 'smaller'].forEach(k => {
       E(`card_${k}`).classList.toggle('active', k === currentSelection);
     });
